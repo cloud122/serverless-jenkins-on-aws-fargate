@@ -41,10 +41,12 @@ resource "null_resource" "render_template" {
   depends_on = [data.template_file.jenkins_configuration_def]
 
   provisioner "local-exec" {
-    command = <<EOF
+    command = <<EOT
 tee ${path.module}/docker/files/jenkins.yaml <<ENDF
 ${data.template_file.jenkins_configuration_def.rendered}
-EOF
+
+EOT
+interpreter = ["bash", "-c"]
   }
 }
 
@@ -55,10 +57,11 @@ resource "null_resource" "build_docker_image" {
   }
   depends_on = [null_resource.render_template]
   provisioner "local-exec" {
-    command = <<EOF
+    command = <<EOT
 docker login -u AWS -p ${data.aws_ecr_authorization_token.token.password} ${local.ecr_endpoint} && \
 docker build -t ${aws_ecr_repository.jenkins_controller.repository_url}:latest ${path.module}/docker/ && \
 docker push ${aws_ecr_repository.jenkins_controller.repository_url}:latest
-EOF
+EOT
+interpreter = ["bash", "-c"]
   }
 }

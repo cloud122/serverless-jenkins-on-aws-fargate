@@ -32,21 +32,27 @@ resource "aws_kms_key" "efs_kms_key" {
   description = "KMS key used to encrypt Jenkins EFS volume"
 }
 
+
 module "serverless_jenkins" {
-  source                          = "../modules/jenkins_platform"
+  source                          = "./modules/jenkins_platform"
   name_prefix                     = local.name_prefix
   tags                            = local.tags
-  vpc_id                          = var.vpc_id
-  efs_kms_key_arn                 = aws_kms_key.efs_kms_key.arn
-  efs_subnet_ids                  = var.efs_subnet_ids
-  jenkins_controller_subnet_ids   = var.jenkins_controller_subnet_ids
-  alb_subnet_ids                  = var.alb_subnet_ids
+  vpc_id                          = module.jenkins_network.vpc_id
+  #efs_kms_key_arn                 = module.jenkins_network.jenkins_cert_arn
+  efs_subnet_ids                  = module.jenkins_network.private_subnet_list 
+  jenkins_controller_subnet_ids   = module.jenkins_network.private_subnet_list 
+  alb_subnet_ids                  = module.jenkins_network.pub_subnet_list
   alb_ingress_allow_cidrs         = ["${module.myip.address}/32"]
   #alb_acm_certificate_arn         = module.acm.this_acm_certificate_arn
-  alb_acm_certificate_arn         = var.alb_acm_certificate_arn
+  alb_acm_certificate_arn         = module.jenkins_network.jenkins_cert_arn
   #route53_create_alias            = true
   #route53_alias_name              = var.jenkins_dns_alias
   #route53_zone_id                 = var.route53_zone_id
   #route53_zone_id                 = aws_route53_zone.primary.zone_id
+
+}
+
+module "jenkins_network" {
+  source                          = "./modules/network"
 }
 

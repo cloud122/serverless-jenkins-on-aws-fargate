@@ -11,10 +11,6 @@ variable name_prefix {
   default = "serverless-jenkins"
 }
 
-variable vpc_id {
-  type = string
-}
-
 // EFS
 variable efs_enable_encryption {
   type    = bool
@@ -49,7 +45,7 @@ variable efs_ia_lifecycle_policy {
 variable efs_subnet_ids {
   type        = list(string)
   description = "A list of subnets to attach to the EFS mountpoint"
-  default     = null
+#      default = ["subnet-0215e74aee392ec0e","subnet-053fc02a6187887fa"]
 }
 
 variable efs_access_point_uid {
@@ -151,18 +147,6 @@ variable alb_ingress_allow_cidrs {
   default     = null
 }
 
-variable alb_subnet_ids {
-  type        = list(string)
-  description = "A list of subnets for the Application Load Balancer"
-  default     = null
-}
-
-
-variable alb_acm_certificate_arn {
-  type        = string
-  description = "The ACM certificate ARN to use for the alb"
-}
-
 variable jenkins_controller_port {
   type    = number
   default = 8080
@@ -186,12 +170,6 @@ variable jenkins_controller_memory {
 variable jenkins_controller_task_log_retention_days {
   type    = number
   default = 30
-}
-
-variable jenkins_controller_subnet_ids {
-  type        = list(string)
-  description = "A list of subnets for the jenkins controller fargate service (required)"
-  default     = null
 }
 
 variable jenkins_controller_task_role_arn {
@@ -227,3 +205,42 @@ variable tags {
   description = "An object of tag key value pairs"
   default     = {}
 }
+
+# variable subnet_list {
+#   type        = list(string)
+#   description = "A list of subnets for the Application Load Balancer"
+#       default = ["subnet-0215e74aee392ec0e","subnet-053fc02a6187887fa"]
+# }
+
+variable jenkins_controller_subnet_ids {
+  type        = list(string)
+  description = "A list of subnets for the jenkins controller fargate service (required)"
+ #     default = ["subnet-0215e74aee392ec0e","subnet-053fc02a6187887fa"]
+}
+
+variable alb_subnet_ids {
+  type        = list(string)
+  description = "A list of subnets for the Application Load Balancer"
+  #default = ["subnet-0215e74aee392ec0e","subnet-053fc02a6187887fa"]
+}
+
+variable alb_acm_certificate_arn {
+  type        = string
+  description = "The ACM certificate ARN to use for the alb"
+  #default = "arn:aws:acm:us-east-1:661840802588:certificate/99b6992c-7e5c-42ad-a59b-7afc5721a45a"
+}
+
+variable vpc_id {
+  type = string
+ #   default = "vpc-0c48e22242d028617"
+}
+
+# variable efs_subnet_ids_mount1_id {
+#   type = string
+#  #   default = "vpc-0c48e22242d028617"
+# }
+
+# variable efs_subnet_ids_mount2_id {
+#   type = string
+#  #   default = "vpc-0c48e22242d028617"
+# }

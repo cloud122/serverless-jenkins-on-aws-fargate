@@ -37,7 +37,6 @@ resource "aws_efs_access_point" this {
   tags = var.tags
 }
 
-
 resource "aws_efs_mount_target" this {
   // This doesn't work if the VPC is being created where this module is called. Needs work
   for_each = { for subnet in var.efs_subnet_ids : subnet => true }
@@ -45,49 +44,68 @@ resource "aws_efs_mount_target" this {
   file_system_id  = aws_efs_file_system.this.id
   subnet_id       = each.key
   security_groups = [aws_security_group.efs_security_group.id]
+  
 }
 
+# resource "aws_efs_mount_target" mount1 {
 
-resource "aws_backup_plan" this {
-  count = var.efs_enable_backup ? 1 : 0
+#   file_system_id  = aws_efs_file_system.this.id
+#   subnet_id       = var.efs_subnet_ids_mount1_id
+#   security_groups = [aws_security_group.efs_security_group.id]
+  
+# }
 
-  name = "${var.name_prefix}-plan"
-  rule {
-    rule_name           = "${var.name_prefix}-backup-rule"
-    target_vault_name   = aws_backup_vault.this[count.index].name
-    schedule            = var.efs_backup_schedule
-    start_window        = var.efs_backup_start_window
-    completion_window   = var.efs_backup_completion_window
-    recovery_point_tags = var.tags
+# resource "aws_efs_mount_target" mount2 {
 
-    dynamic "lifecycle" {
-      for_each = var.efs_backup_cold_storage_after_days != null || var.efs_backup_delete_after_days != null ? [true] : []
-      content {
-        cold_storage_after = var.efs_backup_cold_storage_after_days
-        delete_after       = var.efs_backup_delete_after_days
-      }
-    }
-  }
-  tags = var.tags
-}
+#   file_system_id  = aws_efs_file_system.this.id
+#   subnet_id       = var.efs_subnet_ids_mount2_id 
+#   security_groups = [aws_security_group.efs_security_group.id]
+  
+# }
 
-resource "aws_backup_vault" this {
-  count = var.efs_enable_backup ? 1 : 0
 
-  name = "${var.name_prefix}-vault"
-  tags = var.tags
-}
+#---------------BACKUP PLAN---------------------------
 
-resource "aws_backup_selection" this {
-  count = var.efs_enable_backup ? 1 : 0
+# resource "aws_backup_plan" this {
+#   count = var.efs_enable_backup ? 1 : 0
 
-  name         = "${var.name_prefix}-selection"
-  iam_role_arn = aws_iam_role.aws_backup_role[count.index].arn
-  plan_id      = aws_backup_plan.this[count.index].id
+#   name = "${var.name_prefix}-plan"
+#   rule {
+#     rule_name           = "${var.name_prefix}-backup-rule"
+#     target_vault_name   = aws_backup_vault.this[count.index].name
+#     schedule            = var.efs_backup_schedule
+#     start_window        = var.efs_backup_start_window
+#     completion_window   = var.efs_backup_completion_window
+#     recovery_point_tags = var.tags
 
-  resources = [
-    aws_efs_file_system.this.arn
-  ]
-}
+#     dynamic "lifecycle" {
+#       for_each = var.efs_backup_cold_storage_after_days != null || var.efs_backup_delete_after_days != null ? [true] : []
+#       content {
+#         cold_storage_after = var.efs_backup_cold_storage_after_days
+#         delete_after       = var.efs_backup_delete_after_days
+#       }
+#     }
+#   }
+#   tags = var.tags
+# }
+
+# resource "aws_backup_vault" this {
+#   count = var.efs_enable_backup ? 1 : 0
+
+#   name = "${var.name_prefix}-vault"
+#   tags = var.tags
+# }
+
+# resource "aws_backup_selection" this {
+#   count = var.efs_enable_backup ? 1 : 0
+
+#   name         = "${var.name_prefix}-selection"
+#   iam_role_arn = aws_iam_role.aws_backup_role[count.index].arn
+#   plan_id      = aws_backup_plan.this[count.index].id
+
+#   resources = [
+#     aws_efs_file_system.this.arn
+#   ]
+# }
 
 

@@ -42,16 +42,12 @@ resource "aws_kms_key" "cloudwatch" {
   policy  = data.aws_iam_policy_document.cloudwatch.json
 }
 
-
-
 resource "aws_cloudwatch_log_group" jenkins_controller_log_group {
   name              = var.name_prefix
   retention_in_days = var.jenkins_controller_task_log_retention_days
   kms_key_id        = aws_kms_key.cloudwatch.arn
   tags              = var.tags
 }
-
-
 
 resource "aws_ecs_task_definition" jenkins_controller {
   family = var.name_prefix
@@ -91,7 +87,7 @@ resource "aws_ecs_service" jenkins_controller {
   platform_version = "1.4.0"
 
   // Assuming we cannot have more than one instance at a time. Ever. 
-  deployment_maximum_percent         = 100
+  deployment_maximum_percent         = 200
   deployment_minimum_healthy_percent = 0
   
   
@@ -114,7 +110,6 @@ resource "aws_ecs_service" jenkins_controller {
 
   depends_on = [aws_lb_listener.https]
 }
-
 
 resource "aws_service_discovery_private_dns_namespace" "controller" {
   name = var.name_prefix
